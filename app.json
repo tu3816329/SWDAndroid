@@ -1,0 +1,6 @@
+{
+    "name": "SWDAndroid",
+    "description": "A nodeJS application for handling data at server-end",
+    "repository": "https://github.com/tu3816329/SWDAndroid",
+    "keywords": ["util", "functional", "server", "client", "browser"]
+}

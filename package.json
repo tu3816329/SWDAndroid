@@ -1,0 +1,25 @@
+{
+    "name": "SWDAndroid",
+    "version": "1.0.0",
+    "keywords": ["util", "functional", "server", "client", "browser"],
+    "description":"An Application for handling data at back-end",
+    "author": "TUDT",    
+    "main": "server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node server.js"
+    },
+    "homepage": "https://swdandroid.heroku.com",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/tu3816329/SWDAndroid.git"
+    },
+    "dependencies": {
+        "body-parser": "^1.16.1",
+        "express": "^4.14.1",       
+        "pg-promise": "^5.5.0"
+    },
+    "contributors": [],
+    "devDependencies": {},
+    "license": "ISC"
+}
