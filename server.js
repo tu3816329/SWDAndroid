@@ -108,7 +108,7 @@ app.post('/webhook', function (request, response) {
 */
 //---------------------Handle get request --------------------------
 
-app.get('/form', function (request, response) {
+app.get('/', function (request, response) {
     console.log("Connecting to DB.........");
     var content = "";
     db.many("Select * from tbl_Item").then(function (row) {
