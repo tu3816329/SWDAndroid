@@ -46,6 +46,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 //------------------SupportFunction-----------------------------------------
 
 //------------------Handle Post Request--------------------------------------
+/*
 app.post('/webhook', function (request, response) {
 //    console.log(request.body);
     var jsBody = request.body;
@@ -104,11 +105,13 @@ app.post('/webhook', function (request, response) {
         });
     }
 });
+*/
 //---------------------Handle get request --------------------------
+
 app.get('/', function (request, response) {
     console.log("Connecting to DB.........");
     var content = "";
-    db.many(SELECT_ALL_DETAIL_QUERY).then(function (row) {
+    db.many("Select * from tbl_Item").then(function (row) {
         var productType = [];
         for (var i = 0; i < row.length; i++) {
             productType.push({"name": row[i].name.toString()});

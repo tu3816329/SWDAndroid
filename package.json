@@ -9,7 +9,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node server.js"
     },
-    "homepage": "https://swdandroid.heroku.com",
+    "homepage": "https://swd391.herokuapp.com",
     "repository": {
         "type": "git",
         "url": "https://github.com/tu3816329/SWDAndroid.git"
