@@ -35,7 +35,7 @@ var conConfig = {
 var db = pgPromise(conConfig);
 //-------------Connection Config For Offline DB------------------------
 //var conString = "postgres://postgres:tu3816329@localhost:5432" + "/SWD";
-var db = pgPromise(conString);
+//var db = pgPromise(conString);
 //------------------------------------------------------------------
 module.exports = db;
 module.exports = pgPromise;
@@ -161,7 +161,7 @@ app.get('/', function (request, response) {
     });
 });
 app.get('/Items', function (req, res) {
-    console.log("Connection to tbl_Items");
+    console.log("Connection to tbl_Item");
     db.manyOrNone(GET_ALL_ITEM).then(function (row) {
         var list = {'item': []};
 //        var obj = JSON.parse(list);
