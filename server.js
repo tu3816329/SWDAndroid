@@ -168,7 +168,7 @@ app.get('/Items', function (req, res) {
         for (i = 0; i < row.length; i++) {
             list.item.push({'id': row[i].id.toString(), 'name': row[i].name.toString()
                 , 'description': row[i].description.toString(),
-                'price': row[i].price.toString(),'imageLink':row[i].imagelink.toString()});
+                'price': row[i].price.toString(),'imageLink':row[i].imagelink});
         }
         res.setHeader("Access-Control-Allow-Origin","*");
         res.writeHeader(200, {'Content-type': "Application/json"});
