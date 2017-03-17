@@ -9,50 +9,44 @@ and open the template in the editor.
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script>
-            function sendPost() {
-                var name = document.getElementById("txtName").value;
-                var age = document.getElementById("txtAge").value;
-                var formData = {
-                    "Persons": [
-                        {
-                            "name": name,
-                            "age": age
-                        }
-                    ]
-                };
-                var xml = new XMLHttpRequest();
-                xml.open('POST', 'http://localhost:8080', true);
-                xml.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-                xml.onreadystatechange = function () {
-                    Console.log("Changes");
-                    if (xml.readyState === 4) {
-                        if (xml.status === 200) {
-                            alert("Status: " + xml.statusText + "\n" + "Response:" + xml.responseText);
-                        } else {
-                            alert(" An error has occurred: " + xml.status + "\n"
-                                    + "Status : " + xml.statusText + "\n"
-                                    + "Ready State : " + xml.readyState + "\n"
-                                    + "Method : " + xml.METHODS);
-                        }
-                    }
-                };
-                xml.send(null);
-                xml.send(JSON.stringify(formData));
-
-            }
-
-        </script>
+        <link href="code.js" type="text/javascript" rel="stylesheet"/>
     </head>
+    
     <body>
-        <div><form method="get" action="https://localhost:8080/form">
-                Name: <input type="text" name="name" />
-                <input type="submit" value="Submit" />
-            </form></div>
-
-        <div id="dv"><h1>Post Method</h1>
-            Name:<input type="text" id="txtName" value="Tu" /><br>
-            Age : <input type="text" id="txtAge" value="20"/><br>
-            <button onclick="sendPost()" value="Send Post">Send Post</button></div>
+        <script type="text/javascript" src="code.js"></script>
+        <script>
+            sendGet('/Items', function (value) {
+//                alert(value);
+                var list = JSON.parse(value);
+                var s = "";
+                s += "<table border=1>\n";
+                s += "<tr>\n";
+                s += "<th>ID</th>\n";
+                s += "<th>NAME</th>";
+                s += "<th>DESCRIPTION</th>\n";
+                s += "<th>PRICE</th>\n";
+                s += "</tr>\n";
+                for (var i = 0; i < list.item.length; i++) {
+                    s += "<tr>\n";
+                    s += "<td>" + list.item[i].id + "</td>\n";
+                    s += "<td>" + list.item[i].name + "</td>\n";
+                    s += "<td>" + list.item[i].description + "</td>\n";
+                    s += "<td>" + list.item[i].price + "</td>\n";
+                    s += "</tr>\n";
+                }
+                s += "</table>\n";
+//                alert(s);
+                document.getElementById("table").innerHTML = s;
+            });
+        </script>    
+        <div id="table"></div>
+        <div> <form method = "get" action = "http://swd391.herokuapp.com/id" >
+                ID: <input type = "text" name = "id" />
+                <input type = "submit" value = "Submit" />
+            </form></div >
+        <div id = "dv" > <h1> Post Method </h1>
+            Name: <input type = "text" id = "txtName" value = "Tu" /> <br>
+            Age : <input type = "text" id = "txtAge" value = "20" /> <br>
+            <button onclick = "sendPost()" value = "Send Post" > Send Post </button></div >
     </body>
 </html>
