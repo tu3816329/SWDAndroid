@@ -32,9 +32,9 @@ var conConfig = {
     ssl: true,
     poolSize: 25
 };
-//var db = pgPromise(conConfig);
+var db = pgPromise(conConfig);
 //-------------Connection Config For Offline DB------------------------
-var conString = "postgres://postgres:tu3816329@localhost:5432" + "/SWD";
+//var conString = "postgres://postgres:tu3816329@localhost:5432" + "/SWD";
 var db = pgPromise(conString);
 //------------------------------------------------------------------
 module.exports = db;
