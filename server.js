@@ -46,8 +46,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 var GET_ALL_ITEM = "Select * from tbl_Item";
 var GET_ALL_ITEM_BY_ID = "Select * from tbl_Item where id=${id}";
 var GET_ALL_ITEM_BY_NAME = "Select * from tbl_Item where name=${name}";
-var GET_ALL_ORDER="";
-var GET_ORDER_BY_ID="";
+var GET_ALL_ORDER = "";
+var GET_ORDER_BY_ID = "";
 
 function getItemByID(id, req, res) {
     var content = "";
@@ -72,6 +72,13 @@ function getItemByID(id, req, res) {
 }
 
 //------------------Handle Post Request--------------------------------------
+app.post('/submit', function (req, res) {
+    console.log(req.body);
+    res.header("Content-type:application/json").json(req.body);
+//    res.redirect(req.location);
+    res.status(200);
+    res.end();
+});
 /*
  app.post('/webhook', function (request, response) {
  //    console.log(request.body);
@@ -168,9 +175,9 @@ app.get('/Items', function (req, res) {
         for (i = 0; i < row.length; i++) {
             list.item.push({'id': row[i].id.toString(), 'name': row[i].name.toString()
                 , 'description': row[i].description.toString(),
-                'price': row[i].price.toString(),'imageLink':row[i].imagelink});
+                'price': row[i].price.toString(), 'imageLink': row[i].imagelink});
         }
-        res.setHeader("Access-Control-Allow-Origin","*");
+        res.setHeader("Access-Control-Allow-Origin", "*");
         res.writeHeader(200, {'Content-type': "Application/json"});
         res.write(JSON.stringify(list));
         res.end();
@@ -184,6 +191,24 @@ app.get('/id', function (request, response) {
     console.log("Connecting to DB.........");
     var list = getItemByID(request.query.id, request, response);
 });
+app.get('/createOrder', function (req, res) {
+    var today = new Date();
+    var day = today.getMonth() + "/" + today.getDate() + "/" + today.getYear();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    db.none('INSERT INTO tbl_Order(date,time) VALUES (${date},${time})',
+            {date: day, time: time}).then(function (row) {
+        db.oneOrNone("SELECT TOP 1 * FROM tbl_Order ORDER BY id DESC").then(function (data) {
+            res.status(200).header("Content-type:text/html").write(data).end();
+        }).catch(function (error) {
+            if (error)
+                throw error;
+        });
+    }).catch(function (error) {
+        if (error)
+            throw error;
+    });
+});
+app.post('/checkOut')
 //----------------------Post Server----------------------------------
 var server = app.listen(process.env.PORT || 8080, function () {
     console.log('listening on ' + server.address().port);
