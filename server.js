@@ -213,7 +213,14 @@ app.get('/createOrder', function (req, res) {
             throw error;
     });
 });
-app.post('/checkOut')
+app.post('/checkOut', function (req, res) {
+    var jsBody = req.body;
+    res.writeHeader(200, {'Content-type': "Application/json"});
+    console.log(jsBody.id);
+    db.none("")
+    var content = "";
+    
+});
 //----------------------Post Server----------------------------------
 var server = app.listen(process.env.PORT || 8080, function () {
     console.log('listening on ' + server.address().port);
