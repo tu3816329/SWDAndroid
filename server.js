@@ -216,10 +216,11 @@ app.get('/createOrder', function (req, res) {
 app.post('/checkOut', function (req, res) {
     var jsBody = req.body;
     res.writeHeader(200, {'Content-type': "Application/json"});
+    res.setHeader("Access-Control-Allow-Origin", "*");
     console.log(jsBody.id);
-    db.none("")
+//    db.none("")
     var content = "";
-    
+
 });
 //----------------------Post Server----------------------------------
 var server = app.listen(process.env.PORT || 8080, function () {
