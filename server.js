@@ -193,11 +193,11 @@ app.get('/id', function (request, response) {
 });
 app.get('/createOrder', function (req, res) {
     var today = new Date();
-    var day = today.getMonth() + "/" + today.getDate() + "/" + today.getYear();
+    var day = (today.getMonth()+1) + "/" + today.getDate() + "/" + today.getFullYear();
     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     db.none('INSERT INTO tbl_Order(date,time) VALUES (${date},${time})',
             {date: day, time: time}).then(function (row) {
-        db.oneOrNone("SELECT TOP 1 * FROM tbl_Order ORDER BY id DESC").then(function (data) {
+        db.oneOrNone("SELECT * FROM tbl_Order ORDER BY id DESC limit 1").then(function (data) {
             res.setHeader("Access-Control-Allow-Origin", "*");
             res.status(200).header("Content-type:text/html").write(data).end();
         }).catch(function (error) {
