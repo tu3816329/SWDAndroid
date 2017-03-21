@@ -193,13 +193,17 @@ app.get('/id', function (request, response) {
 });
 app.get('/createOrder', function (req, res) {
     var today = new Date();
-    var day = (today.getMonth()+1) + "/" + today.getDate() + "/" + today.getFullYear();
+    var day = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     db.none('INSERT INTO tbl_Order(date,time,status_id) VALUES (${date},${time},1)',
             {date: day, time: time}).then(function (row) {
         db.oneOrNone("SELECT * FROM tbl_Order ORDER BY id DESC limit 1").then(function (data) {
             res.setHeader("Access-Control-Allow-Origin", "*");
-            res.status(200).header("Content-type:text/html").write(data.id).end();
+//            res.writeHeader   (200, {'Content-type': "text/html"});
+            var id = data.id.toString();
+            console.log(id);
+            res.write(id);
+            res.end();
         }).catch(function (error) {
             if (error)
                 throw error;
