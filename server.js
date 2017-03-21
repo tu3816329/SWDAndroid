@@ -198,6 +198,7 @@ app.get('/createOrder', function (req, res) {
     db.none('INSERT INTO tbl_Order(date,time) VALUES (${date},${time})',
             {date: day, time: time}).then(function (row) {
         db.oneOrNone("SELECT TOP 1 * FROM tbl_Order ORDER BY id DESC").then(function (data) {
+            res.setHeader("Access-Control-Allow-Origin", "*");
             res.status(200).header("Content-type:text/html").write(data).end();
         }).catch(function (error) {
             if (error)
