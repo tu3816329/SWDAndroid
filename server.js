@@ -186,7 +186,6 @@ app.get('/Items', function (req, res) {
             throw error;
     });
 });
-
 app.get('/id', function (request, response) {
     console.log("Connecting to DB.........");
     var list = getItemByID(request.query.id, request, response);
@@ -213,10 +212,11 @@ app.get('/createOrder', function (req, res) {
             throw error;
     });
 });
-app.post('/checkOut', function (req, res) {
+app.post('/checkOut', function (req, res) {        
+    res.header("Access-Control-Allow-Origin", '*');    
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     var jsBody = req.body;
-    res.writeHeader(200, {'Content-type': "Application/json"});
-    res.setHeader("Access-Control-Allow-Origin", "*");
+//    res.writeHeader(200, {'Content-type': "Application/json"});
     console.log(jsBody.id);
 //    db.none("")
     var content = "";
