@@ -41,14 +41,12 @@ module.exports = db;
 module.exports = pgPromise;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-
 //------------------SupportFunction-----------------------------------------
 var GET_ALL_ITEM = "Select * from tbl_Item";
 var GET_ALL_ITEM_BY_ID = "Select * from tbl_Item where id=${id}";
 var GET_ALL_ITEM_BY_NAME = "Select * from tbl_Item where name=${name}";
 var GET_ALL_ORDER = "";
 var GET_ORDER_BY_ID = "";
-
 function getItemByID(id, req, res) {
     var content = "";
     db.manyOrNone(GET_ALL_ITEM_BY_ID, {id: id}).then(function (row) {
@@ -75,79 +73,15 @@ function getItemByID(id, req, res) {
 app.post('/submit', function (req, res) {
     console.log(req.body);
     res.header("Content-type:application/json").json(req.body);
-//    res.redirect(req.location);
     res.status(200);
     res.end();
 });
-/*
- app.post('/webhook', function (request, response) {
- //    console.log(request.body);
- var jsBody = request.body;
- response.writeHeader(200, {'Content-type': "Application/json"});
- var content = "";
- //----------------------Handle Show Menu Request-------------------------
- if (jsBody.result.action.toString().toUpperCase() === "show_menu".toString().toUpperCase()) {
- if (jsBody.result.parameters.Type !== "") {
- db.one(SELECT_PRODUCT_TYPE_QUERY + " where name LIKE ${name}", {name: jsBody.result.parameters.Type}).then(function (data) {
- var id = data.id;
- if (id !== null) {
- db.many(SELECT_DETAIL_PRODUCT_TYPE_QUERY + " where product_type_id=${id} ", {id: id}).then(function (row) {
- 
- console.log("row:" + row);
- var display = "";
- var speech = "We have \\n";
- for (var i = 0; i < row.length; i++) {
- if (i == (row[i].length - 1)) {
- speech += "And " + row.name + " \\n";
- } else {
- speech += row[i].name + " \\n";
- }
- }
- speech += "What kind of " + jsBody.result.parameters.Type.toString().toLowerCase() + " want?";
- var text = speech;
- //                        speech = "Here's your menu.";
- var content = {'speech': speech,
- 'displayText': text,
- 'data': row,
- 'contextOut': [
- {'name': "menuWatched", 'lifespan': 1
- }
- ], 'source': "Thien Tu", 'followupEvent': {
- }
- };
- response.write(JSON.stringify(content));
- console.log("Send response: " + JSON.stringify(content));
- response.end();
- }).catch(function (error) {
- if (error)
- throw error;
- });
- } else {
- 
- }
- });
- }
- }
- if (jsBody.result.action.toString().toUpperCase() === "finish".toString().toUpperCase()) {
- db.many(SELECT_ALL_DETAIL_QUERY).then(function (row) {
- for (var product in row) {
- if (product.name.toString().include()) {
- 
- }
- }
- });
- }
- });
- */
-
 //---------------------Handle get request --------------------------
 
 
 app.get('/', function (request, response) {
     console.log("Connecting to DB.........");
     var content = "";
-
-
     db.manyOrNone(GET_ALL_ITEM_BY_ID, {id: request.query.id}).then(function (row) {
         var productType = [];
         for (var i = 0; i < row.length; i++) {
@@ -186,6 +120,22 @@ app.get('/Items', function (req, res) {
             throw error;
     });
 });
+app.get('/login', function (req, res) {
+    res.header("Access-Control-Allow-Origin", '*');
+    res.header("Access-Control-Allow-Method", '*');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,Authorization");
+    console.log(req.query);
+    var user = req.query.user.toString();
+    var pass = req.query.pass.toString();
+    db.oneOrNone("select role from tbl_user where name=${name} and password=${pass}", {name: user, pass: pass}).then(function (value) {
+        res.write(JSON.stringify(value));
+//        res.flush();
+        res.end();
+    }).catch(function (error) {
+        if (error)
+            throw error;
+    });
+});
 app.get('/id', function (request, response) {
     console.log("Connecting to DB.........");
     var list = getItemByID(request.query.id, request, response);
@@ -212,15 +162,57 @@ app.get('/createOrder', function (req, res) {
             throw error;
     });
 });
-app.post('/checkOut', function (req, res) {        
-    res.header("Access-Control-Allow-Origin", '*');    
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    var jsBody = req.body;
-//    res.writeHeader(200, {'Content-type': "Application/json"});
-    console.log(jsBody.id);
-//    db.none("")
-    var content = "";
 
+app.get('/getOrderByDate', function (req, res) {
+    res.header("Access-Control-Allow-Origin", '*');
+    res.header("Access-Control-Allow-Method", '*');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,Authorization");
+    db.manyOrNone("Select id from tbl_order where date=${day}", {day: req.query.day}).then(function (value) {
+        console.log(JSON.stringify(value));
+        res.write(value.id);
+        res.end();
+    }).catch(function (err) {
+        if (err)
+            throw err;
+    });
+});
+app.all('/checkOut', function (req, res) {
+    res.header("Access-Control-Allow-Origin", '*');
+    res.header("Access-Control-Allow-Method", '*');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,Authorization");
+    console.log(req.body)
+    if (req.method === "POST") {
+        var jsBody = req.body;
+//        console.log(req.body)
+        var order_id = req.body.id;
+        var user_name = req.body.userId;
+        db.oneOrNone("Select id from tbl_user where name=${name}", {name: user_name}).then(function (row) {
+            var value = [];
+            for (var i = 0; i < req.body.item.length; i++) {
+                var id = req.body.item[i].id;
+                var name = req.body.item[i].name;
+                var price = req.body.item[i].price;
+                var amount = req.body.item[i].amount;
+                var val = {order_id: order_id, item_id: id, amount: amount, user_id: row.id};
+                value.push(val);
+            }
+            var cs = new pgPromise.helpers.ColumnSet(['order_id', 'item_id', 'amount', 'user_id'], {table: 'tbl_orderitem'});
+            var query = pgPromise.helpers.insert(value, cs);
+            db.none(query).then(function (data) {
+                console.log(JSON.stringify(value));
+                res.end();
+            }).catch(function (error) {
+                if (error)
+                    throw error;
+            });
+        }).catch(function (error) {
+            if (error)
+                throw error;
+        });
+    } else {
+        console.log(req.method);
+    }
+    res.end();
 });
 //----------------------Post Server----------------------------------
 var server = app.listen(process.env.PORT || 8080, function () {
