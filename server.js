@@ -46,7 +46,7 @@ var GET_ALL_ITEM = "Select * from tbl_Item";
 var GET_ALL_ITEM_BY_ID = "Select * from tbl_Item where id=${id}";
 var GET_ALL_ITEM_BY_NAME = "Select * from tbl_Item where name=${name}";
 var GET_ALL_ORDER = "";
-var GET_ORDER_BY_DATE = "select a.amount,a.name,a.tel,b.* from (select * from tbl_orderitem a inner join tbl_user b on a.user_id=b.id) a inner join (select a.*,b.status  from tbl_order a inner join tbl_status b on a.status_id=b.id where a.date=${day} ) b on a.order_id=b.id";
+var GET_ORDER_BY_DATE = "select distinct a.name,a.tel,b.status,b.id from (select * from tbl_orderitem a inner join tbl_user b on a.user_id=b.id) a inner join (select a.*,b.status  from tbl_order a inner join tbl_status b on a.status_id=b.id where a.date='2017-03-23' ) b on a.order_id=b.id";
 function getItemByID(id, req, res) {
     var content = "";
     db.manyOrNone(GET_ALL_ITEM_BY_ID, {id: id}).then(function (row) {
@@ -69,9 +69,13 @@ function getItemByID(id, req, res) {
     });
 }
 //---------------------Handle get request --------------------------
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
-
-app.get('/', function (request, response) {
+app.get('/', function (request, response, next) {
     console.log("Connecting to DB.........");
     var content = "";
     db.manyOrNone(GET_ALL_ITEM_BY_ID, {id: request.query.id}).then(function (row) {
@@ -93,7 +97,7 @@ app.get('/', function (request, response) {
             throw error;
     });
 });
-app.get('/Items', function (req, res) {
+app.get('/Items', function (req, res, next) {
     console.log("Connection to tbl_Item");
     db.manyOrNone(GET_ALL_ITEM).then(function (row) {
         var list = {'item': []};
@@ -112,7 +116,7 @@ app.get('/Items', function (req, res) {
             throw error;
     });
 });
-app.get('/login', function (req, res) {
+app.get('/login', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", '*');
     res.header("Access-Control-Allow-Method", '*');
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,Authorization");
@@ -129,7 +133,7 @@ app.get('/login', function (req, res) {
             throw error;
     });
 });
-app.get('/detail', function (req, res) {
+app.get('/detail', function (req, res, next) {
     var id = req.query.id;
     db.manyOrNone("Select a.*,b.name from tbl_orderitem a inner join tbl_item b on a.item_id=b.id where a.order_id=${id} ", {id: id}).then(function (row) {
 
@@ -138,7 +142,7 @@ app.get('/detail', function (req, res) {
             throw err;
     });
 });
-app.get('/createOrder', function (req, res) {
+app.get('/createOrder', function (req, res, next) {
     var today = new Date();
     var day = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -161,7 +165,7 @@ app.get('/createOrder', function (req, res) {
     });
 });
 
-app.all('/getOrderByDate', function (req, res) {
+app.all('/getOrderByDate', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Content-Type,Access-Control-Allow-Origin');
     res.header('Access-Control-Allow-Methods', '*');
@@ -179,7 +183,7 @@ app.all('/getOrderByDate', function (req, res) {
         res.end();
     }
 });
-app.all('/checkOut', function (req, res) {
+app.all('/checkOut', function (req, res, next) {
     console.log(req.body);
 //    res.header("Access-Control-Allow-Origin:*");
 //    res.header("Access-Control-Allow-Method:GET, PUT, POST, DELETE");
@@ -204,7 +208,6 @@ app.all('/checkOut', function (req, res) {
             var cs = new pgPromise.helpers.ColumnSet(['order_id', 'item_id', 'amount', 'user_id'], {table: 'tbl_orderitem'});
             var query = pgPromise.helpers.insert(value, cs);
             db.none(query).then(function (data) {
-//                console.log(JSON.stringify(value));
                 res.write("sent");
                 res.end();
             }).catch(function (error) {
@@ -224,16 +227,15 @@ app.all('/checkOut', function (req, res) {
     }
     console.log(JSON.stringify(req.headers));
 });
-app.get('/id', function (req, res) {
+app.get('/id', function (req, res, next) {
     var id = req.query.id;
-    db.manyOrNone("select * from tbl_orderItem a inner join tbl_item b on a.item_id=b.id  where a.order_id=${id}", {id: id}).then(function (row) {
-        res.status(200);
+    db.many("select * from tbl_orderItem a inner join tbl_item b on a.item_id=b.id  where a.order_id=${id}", {id: id}).then(function (row) {
         res.write(JSON.stringify(row));
         console.log(JSON.stringify(row));
         res.end();
     }).catch(function (error) {
         if (error)
-            throw error
+            throw error;
     });
 });
 //----------------------Post Server----------------------------------
