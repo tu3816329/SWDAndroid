@@ -46,7 +46,7 @@ var GET_ALL_ITEM = "Select * from tbl_Item";
 var GET_ALL_ITEM_BY_ID = "Select * from tbl_Item where id=${id}";
 var GET_ALL_ITEM_BY_NAME = "Select * from tbl_Item where name=${name}";
 var GET_ALL_ORDER = "";
-var GET_ORDER_BY_ID = "";
+var GET_ORDER_BY_DATE = "select a.amount,a.name,a.tel,b.* from (select * from tbl_orderitem a inner join tbl_user b on a.user_id=b.id) a inner join (select a.*,b.status  from tbl_order a inner join tbl_status b on a.status_id=b.id where a.date=${day} ) b on a.order_id=b.id";
 function getItemByID(id, req, res) {
     var content = "";
     db.manyOrNone(GET_ALL_ITEM_BY_ID, {id: id}).then(function (row) {
@@ -161,7 +161,7 @@ app.all('/getOrderByDate', function (req, res) {
     res.header('Access-Control-Allow-Headers', 'Content-Type,Access-Control-Allow-Origin');
     res.header('Access-Control-Allow-Methods', '*');
     if (req.method === "GET") {
-        db.manyOrNone("Select id from tbl_order where date=${day}", {day: req.query.day}).then(function (value) {
+        db.manyOrNone(GET_ORDER_BY_DATE,{day: req.query.day}).then(function (value) {
             console.log(JSON.stringify(value));
             res.write(JSON.stringify(value));
             res.end();
