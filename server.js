@@ -69,10 +69,10 @@ function getItemByID(id, req, res) {
     });
 }
 //---------------------Handle get request --------------------------
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 });
 
 app.get('/', function (request, response, next) {
@@ -165,9 +165,9 @@ app.get('/createOrder', function (req, res, next) {
     });
 });
 
-app.all('/getOrderByDate', function (req, res,next) {
-    
-    
+app.all('/getOrderByDate', function (req, res, next) {
+
+
 //        alert(req.query.day);
 //var day=req.query.day;
     if (req.method === "GET") {
@@ -237,6 +237,28 @@ app.get('/id', function (req, res, next) {
     }).catch(function (error) {
         if (error)
             throw error;
+    });
+});
+app.get('/delete', function (req, res, next) {
+    var id = req.query.id;
+    db.none("delete from tbl_orderitem where order_id=${id}", {id: id}).then(function (row) {
+        res.write(JSON.stringify(row));
+        console.log(JSON.stringify(row));
+        res.end();
+    }).catch(function (error) {
+        if (error)
+            throw error;
+    });
+});
+app.get('/changeStatus', function (req, res, next) {
+    var id = req.query.id;
+    var status = req.query.status;
+    db.none("update tbl_order set status_id=${status} where id=${id}", {status: status, id: id}).then(function (row) {
+        console.log("Update");
+        res.end();
+    }).catch(function (err) {
+        if (err)
+            throw err;
     });
 });
 //----------------------Post Server----------------------------------
