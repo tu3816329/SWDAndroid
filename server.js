@@ -46,7 +46,7 @@ var GET_ALL_ITEM = "Select * from tbl_Item";
 var GET_ALL_ITEM_BY_ID = "Select * from tbl_Item where id=${id}";
 var GET_ALL_ITEM_BY_NAME = "Select * from tbl_Item where name=${name}";
 var GET_ALL_ORDER = "";
-var GET_ORDER_BY_DATE = "select distinct a.name,a.tel,b.status,b.id from (select * from tbl_orderitem a inner join tbl_user b on a.user_id=b.id) a inner join (select a.*,b.status  from tbl_order a inner join tbl_status b on a.status_id=b.id where a.date='2017-03-23' ) b on a.order_id=b.id";
+var GET_ORDER_BY_DATE = "select distinct a.name,a.tel,b.status,b.id from (select * from tbl_orderitem a inner join tbl_user b on a.user_id=b.id) a inner join (select a.*,b.status  from tbl_order a inner join tbl_status b on a.status_id=b.id where a.date=${day} ) b on a.order_id=b.id";
 function getItemByID(id, req, res) {
     var content = "";
     db.manyOrNone(GET_ALL_ITEM_BY_ID, {id: id}).then(function (row) {
@@ -165,10 +165,11 @@ app.get('/createOrder', function (req, res, next) {
     });
 });
 
-app.all('/getOrderByDate', function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Access-Control-Allow-Origin');
-    res.header('Access-Control-Allow-Methods', '*');
+app.all('/getOrderByDate', function (req, res,next) {
+    
+    
+//        alert(req.query.day);
+//var day=req.query.day;
     if (req.method === "GET") {
         db.manyOrNone(GET_ORDER_BY_DATE, {day: req.query.day}).then(function (value) {
             console.log(JSON.stringify(value));
