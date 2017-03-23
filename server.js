@@ -68,14 +68,6 @@ function getItemByID(id, req, res) {
             throw error;
     });
 }
-
-//------------------Handle Post Request--------------------------------------
-app.post('/submit', function (req, res) {
-    console.log(req.body);
-    res.header("Content-type:application/json").json(req.body);
-    res.status(200);
-    res.end();
-});
 //---------------------Handle get request --------------------------
 
 
@@ -124,10 +116,11 @@ app.get('/login', function (req, res) {
     res.header("Access-Control-Allow-Origin", '*');
     res.header("Access-Control-Allow-Method", '*');
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,Authorization");
-    console.log(req.query);
+//    console.log(req.query);
     var user = req.query.user.toString();
     var pass = req.query.pass.toString();
     db.oneOrNone("select role from tbl_user where name=${name} and password=${pass}", {name: user, pass: pass}).then(function (value) {
+        console.log(JSON.stringify(value));
         res.write(JSON.stringify(value));
 //        res.flush();
         res.end();
@@ -163,27 +156,34 @@ app.get('/createOrder', function (req, res) {
     });
 });
 
-app.get('/getOrderByDate', function (req, res) {
-    res.header("Access-Control-Allow-Origin", '*');
-    res.header("Access-Control-Allow-Method", '*');
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,Authorization");
-    db.manyOrNone("Select id from tbl_order where date=${day}", {day: req.query.day}).then(function (value) {
-        console.log(JSON.stringify(value));
-        res.write(value.id);
+app.all('/getOrderByDate', function (req, res) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Access-Control-Allow-Origin');
+    res.header('Access-Control-Allow-Methods', '*');
+    if (req.method === "GET") {
+        db.manyOrNone("Select id from tbl_order where date=${day}", {day: req.query.day}).then(function (value) {
+            console.log(JSON.stringify(value));
+            res.write(JSON.stringify(value));
+            res.end();
+        }).catch(function (err) {
+            if (err)
+                throw err;
+        });
+    } else {
+        console.log(req.method);
         res.end();
-    }).catch(function (err) {
-        if (err)
-            throw err;
-    });
+    }
 });
 app.all('/checkOut', function (req, res) {
-    res.header("Access-Control-Allow-Origin", '*');
-    res.header("Access-Control-Allow-Method", '*');
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,Authorization");
-    console.log(req.body)
+    console.log(req.body);
+//    res.header("Access-Control-Allow-Origin:*");
+//    res.header("Access-Control-Allow-Method:GET, PUT, POST, DELETE");
+//    res.header("Access-Control-Allow-Headers:Content-type");
+    res.header('Access-Control-Allow-Origin: *');
+    res.header('Access-Control-Allow-Headers: Content-Type,Access-Control-Allow-Origin');
+    res.header('Access-Control-Allow-Methods: POST');
     if (req.method === "POST") {
         var jsBody = req.body;
-//        console.log(req.body)
         var order_id = req.body.id;
         var user_name = req.body.userId;
         db.oneOrNone("Select id from tbl_user where name=${name}", {name: user_name}).then(function (row) {
@@ -199,7 +199,8 @@ app.all('/checkOut', function (req, res) {
             var cs = new pgPromise.helpers.ColumnSet(['order_id', 'item_id', 'amount', 'user_id'], {table: 'tbl_orderitem'});
             var query = pgPromise.helpers.insert(value, cs);
             db.none(query).then(function (data) {
-                console.log(JSON.stringify(value));
+//                console.log(JSON.stringify(value));
+                res.write("sent");
                 res.end();
             }).catch(function (error) {
                 if (error)
@@ -210,9 +211,13 @@ app.all('/checkOut', function (req, res) {
                 throw error;
         });
     } else {
-        console.log(req.method);
+        console.log(req.method + " is sent");
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Access-Control-Allow-Origin,origin');
+        res.status(200);
+        res.end();
     }
-    res.end();
+    console.log(JSON.stringify(req.headers));
 });
 //----------------------Post Server----------------------------------
 var server = app.listen(process.env.PORT || 8080, function () {
