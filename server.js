@@ -129,9 +129,14 @@ app.get('/login', function (req, res) {
             throw error;
     });
 });
-app.get('/id', function (request, response) {
-    console.log("Connecting to DB.........");
-    var list = getItemByID(request.query.id, request, response);
+app.get('/detail', function (req, res) {
+    var id = req.query.id;
+    db.manyOrNone("Select a.*,b.name from tbl_orderitem a inner join tbl_item b on a.item_id=b.id where a.order_id=${id} ", {id: id}).then(function (row) {
+
+    }).catch(function (err) {
+        if (err)
+            throw err;
+    });
 });
 app.get('/createOrder', function (req, res) {
     var today = new Date();
@@ -161,7 +166,7 @@ app.all('/getOrderByDate', function (req, res) {
     res.header('Access-Control-Allow-Headers', 'Content-Type,Access-Control-Allow-Origin');
     res.header('Access-Control-Allow-Methods', '*');
     if (req.method === "GET") {
-        db.manyOrNone(GET_ORDER_BY_DATE,{day: req.query.day}).then(function (value) {
+        db.manyOrNone(GET_ORDER_BY_DATE, {day: req.query.day}).then(function (value) {
             console.log(JSON.stringify(value));
             res.write(JSON.stringify(value));
             res.end();
@@ -218,6 +223,18 @@ app.all('/checkOut', function (req, res) {
         res.end();
     }
     console.log(JSON.stringify(req.headers));
+});
+app.get('/id', function (req, res) {
+    var id = req.query.id;
+    db.manyOrNone("select * from tbl_orderItem a inner join tbl_item b on a.item_id=b.id  where a.order_id=${id}", {id: id}).then(function (row) {
+        res.status(200);
+        res.write(JSON.stringify(row));
+        console.log(JSON.stringify(row));
+        res.end();
+    }).catch(function (error) {
+        if (error)
+            throw error
+    });
 });
 //----------------------Post Server----------------------------------
 var server = app.listen(process.env.PORT || 8080, function () {
